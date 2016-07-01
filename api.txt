@@ -1,0 +1,342 @@
+﻿General info about api**************************************************
+/*
+ * Smygmis_web_server 2016
+ * ©Ville Hernesniemi
+ * Made with node.js, mysql, fs, express
+ *
+ * Use Accestoken as a header the following way:
+ * {Accestoken : "30535045103169976"}
+ *
+ * Aquire valid Accestoken for a session from /log_in
+ *
+ * /log_in and /create_user dont need the header. All other
+ * api requests will be blocked without proper header.
+ */
+
+api endpoint list*******************************************************
+/*
+ *  api endpoints start here.
+ *  
+ *  current list of endpoints:
+ *     /me
+ *     /create_user
+ *     /log_in
+ *     /getListOfOtherUsers
+ *     /getListOfMyGames  
+ *     /createGameRoom
+ *     /getListOfGamesToJoin
+ *     /joinGame 
+ */
+
+To do list***************************************************************
+/*         
+ *     /addPlayerToRoom
+ *     /updateScore  
+ *     
+ *     games with more that 2 payers
+ *     tournaments
+ *     leagues
+ *     email notifications
+ *     profile picture      
+ */ 
+
+get-methods*************************************************************
+
+http://smygminraspberry1.ddns.net:8081/me
+ /*
+  * api endpoint /me
+  * get the info of the logged in user.
+  * tests if request has a valid token and
+  * matches user based on token.
+  * 
+  * Expexted header type: {Accestoken : "30535045103169976"}
+  * 
+  * Expected json output:
+  * {"response":{
+  *     "message":"SUCCESS",
+  *     "data":[
+  *         {
+  *             "ID":25,
+  *             "UserName":"kallejoo",
+  *             "UserPassword":"kalle",
+  *             "LastName":"Kalle",
+  *             "FirstName":"Joo"
+  *         }
+  *     ],
+  *     "info":{
+  *         "date":"example_date",
+  *         "endpoint":"/me"
+  *     }
+  * }}
+  */
+
+http://smygminraspberry1.ddns.net:8081/getListOfOtherUsers
+ /*
+  * api endpoint /getListOfOtherUsers
+  * get a list of other user.
+  * tests if request has a valid token and
+  * matches user based on token.
+  * 
+  * Expexted header type: {Accestoken : "30535045103169976"}
+  * 
+  * Expected json output:
+  * {"response":{
+  *     "message":"SUCCESS",
+  *     "data":[
+  *         {
+  *             "UserName":"asdsad",
+  *             "ID":21
+  *         },
+  *         {
+  *             "UserName":"erwer",
+  *             "ID":23
+  *         },
+  *     ],
+  *     "info":{
+  *         "date":"example_date",
+  *         "endpoint":"/getListOfOtherUsers"
+  *     }
+  * }}
+  */
+
+http://smygminraspberry1.ddns.net:8081/getListOfMyGames
+ /*
+  * api endpoint /getListOfMyGames
+  * get the info of the logged in user.
+  * tests if request has a valid token and
+  * matches user based on token.
+  * 
+  * Expexted header type: {Accestoken : "30535045103169976"}
+  * 
+  * {"response":{
+  *     "message":"SUCCESS",
+  *     "data":[
+  *         {
+  *             "Room_ID":1,
+  *             "Title":"Taskubilis",
+  *             "StartingDate":null,
+  *             "EndingDate":null,
+  *             "PrivateGame":0,
+  *             "AdminUserID":1,
+  *             "AdminUserName":null,
+  *             "Score":"2-1",
+  *             "Player1":26,
+  *             "Player1UserName":"pouko",
+  *             "Player2":25,
+  *             "Player2UserName":"kallejoo"
+  *         },
+  *         {
+  *             "Room_ID":2,
+  *             "Title":"Taskubilis2",
+  *             "StartingDate":null,
+  *             "EndingDate":null,
+  *             "PrivateGame":0,
+  *             "AdminUserID":1,
+  *             "AdminUserName":null,
+  *             "Score":"2-1",
+  *             "Player1":1,
+  *             "Player1UserName":"Smygmi",
+  *             "Player2":25,
+  *             "Player2UserName":"kallejoo"
+  *         }
+  *     ],
+  *     "info":{
+  *         "date":"example_date",
+  *         "endpoint":"/getListOfMyGames"
+  *     }
+  *}}
+  */
+
+http://smygminraspberry1.ddns.net:8081/getListOfGamesToJoin
+ /*
+  * api endpoint /getListOfGamesToJoin
+  * get a list of gamerooms were there is an empty place
+  * 
+  * tests if request has a valid token and
+  * matches user based on token.
+  * 
+  * Expexted header type: {Accestoken : "30535045103169976"}
+  * 
+  * Expected json output:
+  * {"response":{
+  *     "message":"SUCCESS",
+  *     "data":[
+  *         {
+  *             "Room_ID":21,
+  *             "Title":"T3747231081006796.5",
+  *             "StartingDate":"",
+  *             "EndingDate":"",
+  *             "PrivateGame":0,
+  *             "AdminUserID":25,
+  *             "AdminUserName":"kallejoo",
+  *             "Score":"0-0",
+  *             "Player1":null,
+  *             "Player1UserName":null,
+  *             "Player2":25,
+  *             "Player2UserName":"kallejoo"
+  *         },
+  *         {
+  *             "Room_ID":23,
+  *             "Title":"T7394005587140489",
+  *             "StartingDate":"",
+  *             "EndingDate":"",
+  *             "PrivateGame":0,
+  *             "AdminUserID":25,
+  *             "AdminUserName":"kallejoo",
+  *             "Score":"0-0",
+  *             "Player1":null,
+  *             "Player1UserName":null,
+  *             "Player2":25,
+  *             "Player2UserName":"kallejoo"
+  *         }],
+  *         "info":{
+  *             "date":"example_date",
+  *             "endpoint":"/getListOfGamesToJoin"
+  *         }
+  * }}
+  */
+post-methods**********************************************************
+
+http://smygminraspberry1.ddns.net:8081/create_user
+/*
+ * api endpoint /create_user
+ * Makes a mysql query to the smygmis_database.users
+ * 
+ * Wants a unique UserName
+ * Expected json input:
+ * {"data":{
+ *	"UserName":"Test_user",
+ *	"UserPassword":"kissa",
+ *	"LastName":"Macho",
+ *	"FirstName":"Man"
+ *	}
+ * } 
+ * 
+ * General output
+ * {"response":{
+ *      "message":"SUCCESS",
+ *      "data":"Test_user",
+ *      "info":{
+ *          "date":"example_date",
+ *          "endpoint":"example_url"
+ *          }
+ *      }
+ * }
+ */ 
+
+http://smygminraspberry1.ddns.net:8081/log_in
+ /*
+  * api endpoint /log_in
+  * Makes a mysql query to the smygmis_database.users
+  * user log in check. If UserName UserPassword combo found 
+  * generates 16 digid Accestoken. client can make api calls
+  * using token. Use Accestoken as a header the following way:
+  * {Accestoken : "30535045103169976"}
+  *
+  * /log_in and /create_user dont need the header. All other
+  * api requests will be blockd without proper header.
+  * 
+  * Expected input json:
+  * {"data":{
+  *     "UserName":"jgjg",
+  *     "UserPassword":"sdfdsfsdffds"
+  *     }
+  * }
+  * 
+  * General output
+  * {"response":{
+  *      "message":"SUCCESS",
+  *      "data":{"UserName":"jgjg","AccesToken":85815575253218420},
+  *      "info":{
+  *          "date":"example_date",
+  *          "endpoint":"example_url"
+  *          }
+  *      }
+  * }
+  */ 
+
+http://smygminraspberry1.ddns.net:8081/createGameRoom 
+/*
+ * api endpoint /createGameRoom 
+ * post a new gameroom to smygmis_database.2_player_rooms
+ * tests if request has a valid token and
+ * matches creator of the room based on token.
+ * 
+ * Expexted header type: {Accestoken : "30535045103169976"}
+ * 
+ * Expected input json:
+ * {
+ * "data":{
+ *      "Title":"T7223573513456725",
+ *      "StartingDate":"",
+ *      "EndingDate":"",
+ *      "PrivateGame":false,
+ *      "Score":"0-0",
+ *      "Player1":1,
+ *      "Player1UserName":"Smygmi",
+ *      "Player2":25,
+ *      "Player2UserName":"kallejoo"
+ *      }
+ * }
+ * 
+ * General output:
+ * {"response":{
+ *      "message":"ERROR",
+ *      "data":"TOKEN_NOT_VALID",
+ *      "info":{
+ *          "date":"example_date",
+ *          "endpoint":"/createGameRoom"
+ *      }
+ * }}
+ */
+
+http://smygminraspberry1.ddns.net:8081/joinGame 
+/*
+ * api endpoint /joinGame 
+ * post an update to a gameroom in smygmis_database.2_player_rooms
+ * 
+ * tests if request has a valid token and
+ * matches joining palyer based on token.
+ * 
+ * Expexted header type: {Accestoken : "30535045103169976"}
+ * 
+ * Expected input json:
+ *  {
+ *  	"data":{
+ *  		Room_ID : 24,
+ *  		Player1 : true
+ *          }
+ *  }
+ *   OR:
+ *  {
+ *   	"data":{
+ *   		Room_ID : 24,
+ *   		Player2 : true
+ *           }
+ *  }
+ *  
+ *  Expected output json:
+ *  {
+ *      "response":{
+ *          "message":"SUCCESS",
+ *          "data":"GAMEROOM_JOIN_SUCCESS",
+ *          "info":{
+ *              "date":"example_date",
+ *              "endpoint":"/joinGame"
+ *          }
+ *      }
+ *  }
+ */
+
+**************************************************************************************************
+api response structure plan:
+{
+   "response" :{
+      "message" : "message_code",
+      "data" : "example_data",
+      "info" : {
+         "date" : "example_date",
+         "endpoint" : "example_url"
+      }
+   }   
+}

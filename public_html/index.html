@@ -1,0 +1,65 @@
+<html>
+   <head>
+      <title>API endpoint test page</title>
+   </head>
+
+   <body>
+      <h1>API endpoint test page</h1>
+      <p>Created with create_index_html script</p>
+      <p>Created by pi</p>
+      <p>At: Wed 25 May 14:01:49 UTC 2016</p>
+      
+      <div>
+          <h3>Create user</h3>
+          <input id="user_name" placeholder="Username">
+          <input id="password" placeholder="password">
+          <input id="lastName" placeholder="Lastname">
+          <input id="firstName" placeholder="Firstname">
+          <button type="button" onclick="createUser()">Create</button>
+      </div>
+      <div>
+          <h3>Log in</h3>
+          <input id="user_name_log_in" placeholder="Username">
+          <input id="password_log_in" placeholder="password">
+          <button type="button" onclick="logIn()">Create</button>
+      </div>
+      <div>
+        <h3>Test own info</h3>
+        <button type="button" onclick="testME()">TEST /me</button>
+      </div>
+      <div>
+        <h3>Test other users</h3>
+        <button type="button" onclick="testGetListOfOtherUsers()">TEST /getListOfOtherUsers</button>
+      </div>
+      <div>
+        <h3>Test my games</h3>
+        <button type="button" onclick="testGetListOfMyGames()">TEST /getListOfMyGames</button>
+      </div>
+      <div>
+        <h3>Test greate gameroom</h3>
+        <button type="button" onclick="testCreateGameroom()">TEST /createGameRoom</button>
+      </div>
+      <div>
+        <h3>Test greate gameroom leave some empty</h3>
+        <button type="button" onclick="testCreateGameroomLeaveEmpty()">TEST /createGameRoom</button>
+      </div>
+      
+      <div>
+        <h3>Test getListOfGamesToJoin</h3>
+        <button type="button" onclick="testGetListOfGamesToJoin()">TEST /getListOfGamesToJoin</button>
+      </div>
+      
+      <div>
+          <h3>JoinGame</h3>
+          <input id="ID_OF_GAME_TO_JOIN" placeholder="gameroom id to join">
+          <button id="player1_button" type="button" >Join as player1</button>          
+          <button id="player2_button" type="button" >Join as player2</button>
+      </div>
+      
+      
+      
+      <div id="responseMessage" ></div>
+      
+      <script src="js/Ui.js" type="text/javascript"></script>
+   </body>
+</html>
