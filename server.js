@@ -205,7 +205,7 @@ app.use(express.static(__dirname + '/public_html'));
     if( isTokenLegid( accesToken ) ) {
         var userID = selectIDBasedOnToken( accesToken );
         
-        connection.query("select UserName, LastName, FirstName from users where ID='" + userID + "';", function(error, dbResponse){
+        connection.query("select ID, UserName, LastName, FirstName from users where ID='" + userID + "';", function(error, dbResponse){
             //Handle error
             if(error){
                 logInfo(error);
