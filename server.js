@@ -584,7 +584,7 @@ app.get('/getListOfGamesToJoin', function(request, response){
                                     data : "ER_DUP_ENTRY",
                                     info : {
                                         date : "example_date",
-                                        endpoint : "example_url"
+                                        endpoint : "create_user"
                                     }
                                 }
                             };
@@ -596,26 +596,32 @@ app.get('/getListOfGamesToJoin', function(request, response){
                                     data : "GENERIC_ERROR",
                                     info : {
                                         date : "example_date",
-                                        endpoint : "example_url"
+                                        endpoint : "create_user"
                                     }
                                 }
                             };
                             response.end( JSON.stringify( errorResponse ) );
                         logInfo(error.code); 
                     }
-                    //Success. User greated
-                    var successResponse = {
-                                response : {
-                                    message : "SUCCESS",
-                                    data : {UserName : json.UserName},
-                                    info : {
-                                        date : "example_date",
-                                        endpoint : "example_url"
+                    //Success. User created
+					//generate token for user
+					logInfo("User greated with id " + dbResponse.insertId);
+                        //Generate Accestoken and send response.
+                        var newAccestoken = createAccesToken();
+                        newAccestoken = "" + newAccestoken;
+                        acceptableAccestokens.push( { Accestoken: newAccestoken, UserName : json.UserName, ID : dbResponse.insertId } );												                    
+                        
+						var successResponse = {
+                                    response : {
+                                        message : "SUCCESS",
+                                        data : {UserName : json.UserName, AccesToken : newAccestoken},
+                                        info : {
+                                            date : "example_date",
+                                            endpoint : "create_user"
+                                        }
                                     }
-                                }
-                            };
-                    
-                    response.end(JSON.stringify( successResponse ) ); 
+                                };
+                        response.end(JSON.stringify( successResponse ) );						
                 });                               
 	});		 
  });
