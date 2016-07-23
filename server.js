@@ -81,17 +81,103 @@ app.use(express.static(__dirname + '/public_html'));
  *     /getListOfMyGames
  *     /createGameRoom
  *     /getListOfGamesToJoin
- *     /joinGame       
+ *     /joinGame 
+ *     /getListRoomsWereAdmin 
+ *     /updateScore
  *     
  *  to do list
- *     /addPlayerToRoom
- *     /updateScore       
+ *     /addPlayerToRoom       
  *     games with more that 2 payers
  *     tournaments
  *     leagues
  *     email notifications
  *     profile picture  !!Support for url is in mysql    
  */
+
+ /*
+  * api endpoint /getListRoomsWereAdmin
+  * get a list of rooms were you are admin.
+  * tests if request has a valid token and
+  * matches user based on token.
+  * 
+  * Expexted header type: {Accestoken : "30535045103169976"}
+  * 
+  * Expected json output:
+  * {"response":{
+  *     "message":"SUCCESS",
+  *     "data":[
+  *         {
+  *             "Room_ID":1,
+  *             "Title":"Taskubilis",
+  *             "StartingDate":null,
+  *             "EndingDate":null,
+  *             "PrivateGame":0,
+  *             "AdminUserID":1,
+  *             "AdminUserName":null,
+  *             "Score":"2-1",
+  *             "Player1":26,
+  *             "Player1UserName":"pouko",
+  *             "Player2":25,
+  *             "Player2UserName":"kallejoo"
+  *         },
+  *     ],
+  *     "info":{
+  *         "date":"example_date",
+  *         "endpoint":"/getListRoomsWereAdmin"
+  *     }
+  * }}
+  */
+ app.get('/getListRoomsWereAdmin', function(request, response){
+    var accesToken = request.headers['accestoken']; 
+    logInfo('/getListRoomsWereAdmin received with Accestoken' + accesToken);    
+     
+    if( isTokenLegid( accesToken ) ) {
+        var userID = selectIDBasedOnToken( accesToken );
+        
+        connection.query("select * from 2_player_rooms where AdminUserID="+ userID +";", function(error, dbResponse){
+            //Handle error
+            if(error){
+                logInfo(error);
+                var errorResponse = {
+                    response : {
+                        message : "ERROR",
+                        data : "GENERIC_ERROR",
+                        info : {
+                            date : "example_date",
+                            endpoint : "/getListRoomsWereAdmin"
+                        }
+                    }
+                };
+                response.end( JSON.stringify( errorResponse ) );
+            }
+            //query ok
+            var successResponse = {
+                response : {
+                    message : "SUCCESS",
+                    data : dbResponse,
+                    info : {
+                        date : "example_date",
+                        endpoint : "/getListRoomsWereAdmin"
+                    }
+                }
+            };
+            response.end( JSON.stringify( successResponse ) );
+        });        
+    }
+    else{
+        var errorResponse = {
+            response : {
+                message : "ERROR",
+                data : "TOKEN_NOT_VALID",
+                info : {
+                    date : "example_date",
+                    endpoint : "/getListRoomsWereAdmin"
+                }
+            }
+        };
+        response.end( JSON.stringify( errorResponse ) );
+    }        
+});
  
  /*
   * api endpoint /getListOfOtherUsers
@@ -403,7 +489,7 @@ app.get('/getListOfGamesToJoin', function(request, response){
     if( isTokenLegid( accesToken ) ) {        
         var userID = selectIDBasedOnToken( accesToken );
 		
-        connection.query("select * from 2_player_rooms where ( Player1 is NULL or Player2 is NULL ) && ( Player1<>" + userID + " or  Player2<>" + userID + " );", function(error, dbResponse){
+        connection.query("select * from 2_player_rooms where ( PrivateGame=false ) &&( Player1 is NULL or Player2 is NULL ) && ( Player1<>" + userID + " or  Player2<>" + userID + " );", function(error, dbResponse){
             //Handle error
             if(error){
                 logInfo(error);
@@ -858,6 +944,101 @@ app.get('/getListOfGamesToJoin', function(request, response){
                 info : {
                     date : "example_date",
                     endpoint : "/joinGame"
+                }
+            }
+        };
+        response.end( JSON.stringify( errorResponse ) );
+    }
+});
+
+/*
+ * api endpoint /updateScore 
+ * put an update to a gameroom in smygmis_database.2_player_rooms
+ * 
+ * tests if request has a valid token and
+ * 
+ * Expexted header type: {Accestoken : "30535045103169976"}
+ * 
+ * Expected input json:
+ *  {
+ *  	"data":{
+ *  		Room_ID : 24,
+ *  		Score : "100-0"
+ *          }
+ *  }
+ *  
+ *  Expected output json:
+ *  {
+ *      "response":{
+ *          "message":"SUCCESS",
+ *          "data":"GAMEROOM_UPDATE_SUCCESS",
+ *          "info":{
+ *              "date":"example_date",
+ *              "endpoint":"/updateScore"
+ *          }
+ *      }
+ *  }
+ */
+ app.put('/updateScore', function(request, response){     
+    var accesToken = request.headers['accestoken']; 
+    logInfo('/updateScore received with Accestoken' + accesToken);
+	
+    if( isTokenLegid( accesToken ) ) {
+        var jsonString = "";
+        
+        request.on('data', function (data) {
+            jsonString += data;
+        });
+	
+	request.on('end', function () {
+            var json = JSON.parse(jsonString);
+            json = json.data;
+            console.log("Json received was: " + JSON.stringify( json ));
+            
+            var query = "update 2_player_rooms set Score='" + json.Score + "'";                
+            
+            console.log( query + " where Room_ID=" + json.Room_ID + ";" );
+            connection.query( query + " where Room_ID=" + json.Room_ID + ";",
+            function(error, dbResponse){
+                //Handle error
+                if(error){
+                    logInfo(error);
+                    var errorResponse = {
+                        response : {
+                            message : "ERROR",
+                            data : "GENERIC_ERROR",
+                            info : {
+                                date : "example_date",
+                                endpoint : "/updateScore"
+                            }
+                        }
+                    };
+                    response.end( JSON.stringify( errorResponse ) );
+                }
+
+                //query ok
+                var successResponse = {
+                    response : {
+                        message : "SUCCESS",
+                        data : "GAMEROOM_UPDATE_SUCCESS",
+                        info : {
+                            date : "example_date",
+                            endpoint : "/updateScore"
+                        }
+                    }
+                };
+                response.end( JSON.stringify( successResponse ) );                 
+            });
+        });
+    }
+    else{
+        var errorResponse = {
+            response : {
+                message : "ERROR",
+                data : "TOKEN_NOT_VALID",
+                info : {
+                    date : "example_date",
+                    endpoint : "/updateScore"
                 }
             }
         };
