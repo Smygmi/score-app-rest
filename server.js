@@ -24,7 +24,7 @@
             host    :   'localhost',
             user    :   's_web_server',
             password:   '5ZXsusi5',
-            database:   'smygmis_database'
+            database:   'scoreapp'
          }     
     );
 connection.connect();    
@@ -401,8 +401,9 @@ app.get('/getListOfGamesToJoin', function(request, response){
     logInfo('/getListOfGamesToJoin received with Accestoken' + accesToken);    
      
     if( isTokenLegid( accesToken ) ) {        
-        
-        connection.query("select * from 2_player_rooms where Player1 is NULL or Player2 is NULL;", function(error, dbResponse){
+        var userID = selectIDBasedOnToken( accesToken );
+		
+        connection.query("select * from 2_player_rooms where ( Player1 is NULL or Player2 is NULL ) && ( Player1<>" + userID + " or  Player2<>" + userID + " );", function(error, dbResponse){
             //Handle error
             if(error){
                 logInfo(error);
