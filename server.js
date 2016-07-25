@@ -489,7 +489,7 @@ app.get('/getListOfGamesToJoin', function(request, response){
     if( isTokenLegid( accesToken ) ) {        
         var userID = selectIDBasedOnToken( accesToken );
 		
-        connection.query("select * from 2_player_rooms where ( PrivateGame=false ) &&( Player1 is NULL or Player2 is NULL ) && ( Player1<>" + userID + " or  Player2<>" + userID + " );", function(error, dbResponse){
+        connection.query("select * from 2_player_rooms where ( PrivateGame=false ) &&( Player1 is NULL or Player2 is NULL ) && ( ( Player1!=" + userID + " or  Player2!=" + userID + " ) or ( Player1 is NULL and Player2 is NULL ));", function(error, dbResponse){
             //Handle error
             if(error){
                 logInfo(error);
