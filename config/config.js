@@ -1,10 +1,10 @@
 module.exports = {
     PORT: 8081,
-    signKey: "dfklsdf234dsfVXCVSdfkoladslfdfdfasd2314DSFSDF1234",
-    secret: "sdjhf42342SFDSgncslkfhj324235DFSDFdsflakhdöl313AS",
+    signKey: "REAL_SECRED_FOR_JWT_TOKEN",
+    secret: "REAL_SECRED_FOR_PASSWORD_HASH",
     db: "scoreapp",
-    userName: "s_web_server",
-    userPassword: "5ZXsusi5",
+    userName: "REAL_USERNAME",
+    userPassword: "REAL_PASSWORD",
     host: 'localhost',
     dialect: 'mysql',
     pool: {
